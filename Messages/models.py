@@ -16,8 +16,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    sent = db.relationship('Message', back_populates='sender')
-    received = db.relationship('ReceivedMessages', back_populates='user_received', lazy=False)
 
     def __init__(self, username, password):
         self.username = username
@@ -41,25 +39,23 @@ class User(db.Model):
 @dataclass
 class Message(db.Model):
     __tablename__ = 'message'
-    sender: str
-    receiver: str
-    read: bool
 
     id = db.Column(db.Integer, primary_key=True)
-    sender = db.relationship("User", back_populates="sent")
-    receiver = db.relationship('ReceivedMessages', back_populates='message')
-    message = db.column(db.String(120), unique=False, nullable=False)
+    sender = db.Column(db.String(120), unique=False, nullable=False)
+    receiver = db.Column(db.String(120), unique=False, nullable=False)
+    message = db.Column(db.String(120), unique=False, nullable=False)
     subject = db.Column(db.String(120), nullable=False)
     date = db.Column(db.DateTime, unique=False, nullable=False, default=datetime.utcnow)
+    read = db.Column(db.Boolean, unique=False, default=False)
 
-    def __repr__(self):
-        return f'sender: {self.sender}'
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-class ReceivedMessages(db.Model):
-    message_id = db.Column(db.Integer, db.ForeignKey('message.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    read = db.Column(db.Boolean, nullable=False, default=False)
-    message = db.relationship('Message', back_populates='receiver')
-    user_received = db.relationship('User', back_populates='received')
-    messages = db.relationship('Message')
+# class ReceivedMessages(db.Model):
+#     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+#     read = db.Column(db.Boolean, nullable=False, default=False)
+#     message = db.relationship('Message', back_populates='receiver')
+#     user_received = db.relationship('User', back_populates='received')
+#     messages = db.relationship('Message')

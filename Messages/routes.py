@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from Messages import app, db
-from Messages.models import Message, User, ReceivedMessages
+from Messages.models import Message, User
 from flask import request, jsonify
 
 
@@ -34,7 +34,22 @@ def login():
     return jsonify({'token': str(token.encode('UTF-8'))})
 
 
-@app.route('/api/get/<username>/messages', methods=['POST'])
+@app.route('/api/post/message', methods=['POST'])
+def write_message():
+    data = request.json
+    message = Message(sender=data['sender'], receiver=data['receiver'], message=data['message'],
+                      subject=data['subject'], date=datetime.utcnow())
+
+    receiver = User.query.filter_by(username=data['receiver']).first()
+    if not receiver:
+        return {'Error': 'Receiver does not exist'}, 401
+
+    db.session.add(message)
+    db.session.commit()
+    return jsonify(data)
+
+
+@app.route('/api/get/<username>/messages', methods=['GET'])
 def get_all_messages(username):
     unread = request.args.get('unread')
     if unread is None:
@@ -43,24 +58,24 @@ def get_all_messages(username):
     user = User.query.filter_by(username=username).first()
 
     if not user:
-        return {'Error: User does not exist'}, 401
+        return {'Error': 'User does not exist'}, 401
 
-    messages = ReceivedMessages.query.with_parent(user).options(db.joinedload("message").joinedload("sender"))
+    messages = Message.query.filter_by(receiver=username)
     if unread:
         messages.filter_by(read=False)
 
-    return jsonify(messages)
+    return jsonify([c.as_dict() for c in messages.all()])
 
 
-def write_message():
-    data = request.json
-    message = Message(sender=data['sender'], receiver=data['receiver'])
-    db.session.add(message)
-    db.session.commit()
-    return jsonify(data)
+@app.route('/api/get/<username>/message/<id>')
+def get_one_message(username, id):
+    message = Message.query.filter_by(id=id).first()
+    if not message:
+        return {'Error': 'Message does not exist'}, 401
 
+    if username != message.receiver:
+        return {'Error': 'Not your message'}
 
-@app.route('/messages', methods=['GET'])
-def get_all_messages():
-    messages = Message.query.all()
-    return jsonify(messages)
+    message.read = True
+
+    return message.as_dict()
