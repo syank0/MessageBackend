@@ -39,6 +39,9 @@ def login():
 @token_required
 def write_message(current_user):
     data = request.json
+    if current_user.username == data['receiver']:
+        return {'Error': 'Cannot send messages to yourself'}, 401
+
     message = Message(sender=current_user.username, receiver=data['receiver'], message=data['message'],
                       subject=data['subject'], date=datetime.utcnow())
 
