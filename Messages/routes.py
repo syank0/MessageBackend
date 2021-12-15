@@ -51,7 +51,7 @@ def write_message(current_user):
 
     db.session.add(message)
     db.session.commit()
-    return jsonify(data)
+    return {'Ok': 'Added message'}, 200
 
 
 @app.route('/api/get/messages', methods=['GET'])
@@ -73,7 +73,7 @@ def get_all_messages(current_user):
     return jsonify([c.as_dict() for c in messages.all()])
 
 
-@app.route('/api/get/message/<id>')
+@app.route('/api/get/message/<id>', methods=['GET'])
 @token_required
 def get_one_message(current_user, id):
     message = Message.query.filter_by(id=id).first()
