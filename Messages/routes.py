@@ -6,6 +6,11 @@ from flask import request, jsonify
 from Messages.auth import token_required
 
 
+@app.route('/', methods=['GET'])
+def get_root():
+    return '<h1>An example backend service.</h1>'
+
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
