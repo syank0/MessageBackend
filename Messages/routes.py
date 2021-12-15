@@ -12,7 +12,7 @@ def register():
     user = User(**data)
     db.session.add(user)
     db.session.commit()
-    return jsonify(user)
+    return jsonify(user.as_dict())
 
 
 @app.route('/login', methods=['POST'])

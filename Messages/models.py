@@ -1,17 +1,10 @@
 from datetime import datetime
-from typing import List
-
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from Messages import db
-from dataclasses import dataclass
 
 
-@dataclass
 class User(db.Model):
     __tablename__ = 'user'
-    username: str
-    password: str
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
@@ -35,8 +28,13 @@ class User(db.Model):
 
         return user
 
+    def as_dict(self):
+        user_dict = {}
+        for c in self.__table__.columns:
+            user_dict[c.name] = getattr(self, c.name)
+        return user_dict
 
-@dataclass
+
 class Message(db.Model):
     __tablename__ = 'message'
 
