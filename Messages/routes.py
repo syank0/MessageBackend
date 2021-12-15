@@ -16,6 +16,9 @@ def register():
     data = request.get_json()
     if 'username' not in data or 'password' not in data:
         return {'Error': 'Bad input'}, 401
+    user = User.query.filter_by(username=data['username'])
+    if user:
+        return {'Error': 'User already exists'}, 401
     user = User(**data)
     db.session.add(user)
     db.session.commit()
