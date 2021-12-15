@@ -14,7 +14,7 @@ def get_root():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    if 'username' not in data or 'password' not in data:
+    if 'username' not in data or 'password' not in data or len(data) != 2:
         return {'Error': 'Bad input'}, 401
     user = User.query.filter_by(username=data['username']).first()
     if user:
@@ -28,7 +28,7 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    if 'username' not in data or 'password' not in data:
+    if 'username' not in data or 'password' not in data or len(data) != 2:
         return {'Error': 'Bad input'}, 401
     user = User.authenticate(**data)
 
@@ -51,7 +51,7 @@ def login():
 @token_required
 def write_message(current_user):
     data = request.get_json()
-    if 'message' not in data or 'receiver' not in data or 'subject' not in data:
+    if 'message' not in data or 'receiver' not in data or 'subject' not in data or len(data) != 3:
         return {'Error': 'Bad input'}, 401
     if current_user.username == data['receiver']:
         return {'Error': 'Cannot send messages to yourself'}, 401
