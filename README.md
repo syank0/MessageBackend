@@ -10,7 +10,7 @@ A simple backend service for messages, using `Flask`, `jwt` for authentication a
 
 ## Message related
 All of these require an 'Authorized' header with the token from the login.
-+ `/api/post/message` expects a json with `receiver`, `message` and `subject`, all strings. Returns 200 on success.
-+ `/api/get/messages` returns all messages the user received on success.
-+ `/api/get/message/<id>`, returns a single message a user received by `id` on success.
-+ `/api/delete/<id>`, exptects an `id` of message to delete as sender or as receiver. Returns 200 on success.
++ `POST /api/post/message` expects a json with `receiver`, `message` and `subject`, all strings. Returns 200 on success.
++ `GET /api/get/messages` returns all messages the user received on success.
++ `GET /api/get/message/<id>`, returns a single message a user received by `id` on success.
++ `POST /api/delete/<id>`, exptects an `id` of message to delete as sender or as receiver. Returns 200 on success.
