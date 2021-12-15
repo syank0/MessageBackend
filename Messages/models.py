@@ -47,15 +47,12 @@ class Message(db.Model):
     subject = db.Column(db.String(120), nullable=False)
     date = db.Column(db.DateTime, unique=False, nullable=False, default=datetime.utcnow)
     read = db.Column(db.Boolean, unique=False, default=False)
+    deleted_by_sender = db.Column(db.Boolean, unique=False, default=False)
+    deleted_by_receiver = db.Column(db.Boolean, unique=False, default=False)
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-
-# class ReceivedMessages(db.Model):
-#     message_id = db.Column(db.Integer, db.ForeignKey('message.id'), primary_key=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-#     read = db.Column(db.Boolean, nullable=False, default=False)
-#     message = db.relationship('Message', back_populates='receiver')
-#     user_received = db.relationship('User', back_populates='received')
-#     messages = db.relationship('Message')
+        message_dict = {}
+        for c in self.__table__.columns:
+            if c.name != 'read' and c.name != 'deleted_by_sender' and c.name != 'deleted_by_receiver':
+                message_dict[c.name] = getattr(self, c.name)
+        return message_dict
